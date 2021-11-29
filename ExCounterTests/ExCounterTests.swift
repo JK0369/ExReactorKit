@@ -9,25 +9,50 @@ import XCTest
 @testable import ExCounter
 
 class ExCounterTests: XCTestCase {
-
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    
+    var sut = UIStoryboard(name: "Counter", bundle: nil)
+    
+    func testAction_whenDidTapDecreaseButtonInView_thenMutationIsDecreaseInReactor() {
+        // Given
+        let counterReactor = CounterViewReactor()
+        counterReactor.isStubEnabled = true
+        
+        let counterViewController = sut.instantiateViewController(withIdentifier: "Counter") as! CounterViewController
+        counterViewController.loadViewIfNeeded() // Output과 Action을 구성하기 위해서 호출
+        counterViewController.reactor = counterReactor
+        
+        // When
+        counterViewController.decreaseButton.sendActions(for: .touchUpInside)
+        
+        // Then
+        XCTAssertEqual(counterReactor.stub.actions.last, .decrease)
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    func testState_whenChangeLoadingStateToTrueInReactor_thenActivityIndicatorViewIsAnimatingInView() {
+        // Given
+        let counterReactor = CounterViewReactor()
+        counterReactor.isStubEnabled = true
+        
+        let counterViewController = sut.instantiateViewController(withIdentifier: "Counter") as! CounterViewController
+        counterViewController.loadViewIfNeeded()
+        counterViewController.reactor = counterReactor
+        
+        // When
+        counterReactor.stub.state.value = CounterViewReactor.State(value: 0, isLoading: true)
+        
+        // Then
+        XCTAssertEqual(counterViewController.activityIndicatorView.isAnimating, true)
     }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+    
+    func testReactor_whenExcuteIncreaseButtonTapActionInView_thenStateIsLoadingInReactor() {
+        // Given
+        let reactor = CounterViewReactor()
+        
+        // When
+        reactor.action.onNext(.increase)
+        
+        // Then
+        XCTAssertEqual(reactor.currentState.isLoading, true)
     }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
-
 }
+
