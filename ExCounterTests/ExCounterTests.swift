@@ -18,7 +18,7 @@ class ExCounterTests: XCTestCase {
         counterReactor.isStubEnabled = true
         
         let counterViewController = sut.instantiateViewController(withIdentifier: "Counter") as! CounterViewController
-        counterViewController.loadViewIfNeeded() // Output과 Action을 구성하기 위해서 호출
+        counterViewController.loadViewIfNeeded() // IBOutlet과 Action을 구성하기 위해서 호출
         counterViewController.reactor = counterReactor
         
         // When
