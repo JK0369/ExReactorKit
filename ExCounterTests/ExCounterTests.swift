@@ -6,11 +6,13 @@
 //
 
 import XCTest
+import RxSwift
 @testable import ExCounter
 
 class ExCounterTests: XCTestCase {
     
     var sut = UIStoryboard(name: "Counter", bundle: nil)
+    var disposeBag = DisposeBag()
     
     func testAction_whenDidTapDecreaseButtonInView_thenMutationIsDecreaseInReactor() {
         // Given
@@ -53,6 +55,23 @@ class ExCounterTests: XCTestCase {
         
         // Then
         XCTAssertEqual(reactor.currentState.isLoading, true)
+    }
+  
+    func testReactor_whenExecuteIncreaseButtonTapActionInView_thenStateValueIsChanged() {
+      // Given
+        let reactor = CounterViewReactor()
+        let expectation = XCTestExpectation(description: "Test Description")
+        reactor.state.map(\.value)
+          .distinctUntilChanged()
+          .filter { $0 == 1 }
+          .subscribe(onNext: { value in expectation.fulfill() })
+          .disposed(by: self.disposeBag)
+        
+        // When
+        reactor.action.onNext(.increase)
+        
+        // Then
+        wait(for: [expectation], timeout: 3.0)
     }
 }
 
